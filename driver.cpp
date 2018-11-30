@@ -69,6 +69,9 @@ int main(int argc, char *argv[]) {
   int nVaccineStockpile = 1000000000;  // amount of vaccine available (after first day)
   int nVaccineCap = 1000000000;  // amount of vaccine ever available (maximum supply)
   int nVaccineFirstDay = -1;// when vaccines arrive
+  int nNumVaccineLocationFirstDays=0;     // how many vaccination locations?
+  int *nVaccineLocationFirstDay=NULL;     // when vaccination starts in one "location"
+  string *szVaccineLocationLabel=NULL;    // names of locations for vaccination
   int nVaccinePerDay = 0;  // amount of vaccine that arrives per day after first day
   double fHygiene = 0.0;
   double fWorkingFraction=0.28; // fraction of people who work (ages 15y+)
@@ -83,6 +86,8 @@ int main(int argc, char *argv[]) {
   double fRainSheddingMultiplier3 = 1.0;
   double fRainSheddingMultiplier4 = 1.0;
   double fRainSheddingMultiplier5 = 1.0;
+  double fVibrioHalflife = 30.0; // in days
+  string szRainFile="haiti-rainfall.txt";
   string szTractFile=""; //grid-cells.csv";
   string szDailyOutputFile="location-infections.csv"; // daily output by location (labels)
   string szGridOutputFile=""; //="grid-infections.csv"; // daily output by grid square (huge raster)
@@ -151,7 +156,15 @@ int main(int argc, char *argv[]) {
 	cerr << "vaccination delay = " << nVaccinateDelay << endl;
       } else if (argname.compare("vaccinefirstday")==0) {
 	linestream >> nVaccineFirstDay;
-	cerr << "first day of vaccination = " << nVaccineFirstDay << endl;
+	cerr << "first (calendar) day of vaccination = " << nVaccineFirstDay << endl;
+      } else if (argname.compare("vaccinelocationfirstday")==0) {
+	if (nNumVaccineLocationFirstDays<=0) {
+	  nVaccineLocationFirstDay = new int[100];
+	  szVaccineLocationLabel = new string[100];
+	}
+	linestream >> szVaccineLocationLabel[nNumVaccineLocationFirstDays]; // vaccinate cells with this label
+	linestream >> nVaccineLocationFirstDay[nNumVaccineLocationFirstDays]; // on this calendar day
+	nNumVaccineLocationFirstDays++;
       } else if (argname.compare("vaccineperday")==0) {
 	linestream >> nVaccinePerDay;
 	cerr << "new vaccine available per day = " << nVaccinePerDay << endl;
@@ -173,6 +186,9 @@ int main(int argc, char *argv[]) {
       } else if (argname.compare("rainshedmultipliers")==0) {
 	linestream >> fRainSheddingMultiplier1 >> fRainSheddingMultiplier2 >> fRainSheddingMultiplier3 >> fRainSheddingMultiplier4 >> fRainSheddingMultiplier5;
 	cerr << "no/low/medium/high/extreme rainfall shedding multipliers = " << fRainSheddingMultiplier1 << " / " << fRainSheddingMultiplier2 << " / " << fRainSheddingMultiplier3 << " / " << fRainSheddingMultiplier4 << " / " << fRainSheddingMultiplier5 << endl;
+      } else if (argname.compare("vibriohalflife")==0) {
+	linestream >> fVibrioHalflife;
+	cerr << "environmental vibrio half life (days) = " << fVibrioHalflife << endl;
       } else if (argname.compare("prioritizeriver")==0) {
 	bPrioritizeRiver = true;
 	cerr << "Prioritizing rivers" << endl;
@@ -204,7 +220,7 @@ int main(int argc, char *argv[]) {
 	Community::setVE_u5reduction(temp);
       } else if (argname.compare("days")==0 || argname.compare("runlength")==0) {
 	linestream >> runlength;
-	cerr << "runlength = " << runlength << endl;
+	cerr << "runlength (simulation days) = " << runlength << endl;
       } else if (argname.compare("vaccinestockpile")==0) {
 	linestream >> nVaccineStockpile;
 	cerr << "vaccine stockpile size = " << nVaccineStockpile << endl;
@@ -217,6 +233,9 @@ int main(int argc, char *argv[]) {
       } else if (argname.compare("cellfile")==0) {
 	linestream >> szTractFile;
 	cerr << "cell file = " << szTractFile << endl;
+      } else if (argname.compare("rainfile")==0) {
+	linestream >> szRainFile;
+	cerr << "rainfall file = " << szRainFile << endl;
       } else if (argname.compare("outputfile")==0) {
 	if (linestream >> szDailyOutputFile) {
 	  cerr << "daily location file = " << szDailyOutputFile << endl;
@@ -263,7 +282,7 @@ int main(int argc, char *argv[]) {
     }
   }  
   gsl_rng_set(rng, randomseed);
-  Community::setVibrioDecay(1.0-1.0/30.0);
+  Community::setVibrioDecay(1.0-1.0/fVibrioHalflife);
   Community::setVibrio50(kappa);
   Community::setHyperVibrioMultiplier(hyper);
   Community::setBeta(beta);
@@ -274,6 +293,12 @@ int main(int argc, char *argv[]) {
   if (fAsymptomaticInfectiousness>=0.0)
     Community::setAsymptomaticInfectiousnessMultiplier(fAsymptomaticInfectiousness);
 
+  if (nNumVaccineLocationFirstDays>0) {
+    for (int i=0; i<nNumVaccineLocationFirstDays; i++) {
+      cerr << "Vaccinate location " << szVaccineLocationLabel[i] << " starting on calendar day " << nVaccineLocationFirstDay[i] << endl;
+    }
+  }
+
   if (bHaiti) { // Haiti
     pop=new Population();
     pop->loadPopulation(rng, 
@@ -282,7 +307,7 @@ int main(int argc, char *argv[]) {
 		      "haitipopulation-dim.txt",
 		      "haitipopulation.txt",
 		      bNoTransmit);
-    pop->loadRainfall("haiti-rainfall.txt");
+    pop->loadRainfall(szRainFile.c_str());
     pop->loadRivers("rivers.txt");
     pop->loadHighways("highways.txt");
     pop->setRiverShedFraction(fRiverShedFraction);
@@ -432,7 +457,21 @@ int main(int argc, char *argv[]) {
   // main loop
   for (int t=0; t<runlength; t++) {
     if (t%100==0)
-      cerr << "time " << t << endl;
+      cerr << "simulation day " << t << endl;
+    if (nNumVaccineLocationFirstDays>0) {
+      for (int i=0; i<nNumVaccineLocationFirstDays; i++) {
+	if (nVaccineLocationFirstDay[i]==nStartDay+t) {
+	  cerr << "Start vaccinating " << szVaccineLocationLabel[i] << " on day " << nVaccineLocationFirstDay[i] << endl;
+	  if ((nVaccineFirstDay<0) || (nVaccineFirstDay>nStartDay+t))
+	    nVaccineFirstDay = nStartDay+t; // trigger "global" vaccination flag
+	  for (int j=0; j < pop->getNumCells(); j++)
+	    if (szVaccineLocationLabel[i].compare(pop->getLabel(j))==0) {
+	      pop->prioritizeCell(j);
+	    }
+	}
+      }
+    }
+    //    cerr << t << " vaccines available: " << pop->getNumVaccinesAvailable() << ", starting on day " << nVaccineFirstDay << endl;
     if (nVaccineFirstDay==nStartDay+t) {
       pop->setNumVaccinesAvailable(nVaccineStockpile);
       pop->setVaccinationThreshold(nVaccinateThreshold);
@@ -443,6 +482,8 @@ int main(int argc, char *argv[]) {
       pop->setNumVaccinesAvailable(pop->getNumVaccinesAvailable()+nVaccinePerDay);
     if (pop->getNumVaccinesAvailable()>nVaccineCap)
       pop->setNumVaccinesAvailable(nVaccineCap);
+
+
     if (pop) {
       pop->step(rng);
       if (bPrioritizeRiver) {

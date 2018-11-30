@@ -129,12 +129,14 @@ class Population {
   void setVaccinationThreshold(int n) { _nVaccinationThreshold=n; }
   int getVaccinationDelay() { return _nVaccinationDelay; }
   void setVaccinationDelay(int n) { _nVaccinationDelay=n; }
+  int getVaccinationDay(int loc) { return _nVaccinationDay[loc]; }
+  void setVaccinationDay(int loc, int n) { if (_nVaccinationDay[loc]>n) _nVaccinationDay[loc]=n; } // only set if not vaccinated yet
   void prevaccinate(gsl_rng *rng);
   void setNumVaccinesAvailable(int n) { _nNumVaccinesAvailable=n; }
   int getNumVaccinesAvailable() { return _nNumVaccinesAvailable; }
   void prioritizeCell(int gridindex);
   bool isVaccinated(int gridindex) { return _bGridVaccinated[gridindex]; }
-  bool wantVaccine(int gridindex) { return _nVaccinationDay[gridindex]<1000; }
+  bool wantVaccine(int gridindex) { return _nVaccinationDay[gridindex]<99999; }
 
  protected:
   int getRadius(GridCells *g, int center, int radius, int *buf, int bufsize);

@@ -924,6 +924,7 @@ int Population::step(gsl_rng *rng) {
 
     // vaccinate if ready
     if (_nNumVaccinesAvailable>_nNumVaccinesUsed) {
+      //      cerr << "_nNumVaccinesAvailable>_nNumVaccinesUsed : " << _nNumVaccinesAvailable << ">" << _nNumVaccinesUsed << endl; ////////////
       int nNumPeopleWant = 0;
       int nNumCellsWant = 0;
       for (int gridnum=0; gridnum < _grid->getSize(); gridnum++)
@@ -934,9 +935,8 @@ int Population::step(gsl_rng *rng) {
 	  nNumCellsWant++;
 	}
       nNumPeopleWant *= _fVaccinationTarget;
-
-      //      cerr << "Want vaccine: " << nNumPeopleWant << "/" << nr << ", " << nNumCellsWant << "," << _fVaccinationTarget << endl;
-      //      cerr << "Have: " << _nNumVaccinesAvailable-_nNumVaccinesUsed << endl;
+      //      cerr << "Want vaccine: " << nNumPeopleWant << "/" <<  ", " << nNumCellsWant << "," << _fVaccinationTarget << endl;
+      //cerr << "Have: " << _nNumVaccinesAvailable-_nNumVaccinesUsed << endl;
       if (nNumPeopleWant<=_nNumVaccinesAvailable-_nNumVaccinesUsed) {
 	// enough vaccine for everyone who wants it
 	for (int gridnum=0; gridnum < _grid->getSize(); gridnum++) {
