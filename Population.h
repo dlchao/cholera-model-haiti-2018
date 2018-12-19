@@ -188,7 +188,7 @@ class Population {
   int _nNumRainfallLabels; // number of locations
   string _szRainfallLabels[MAXRAINFALLLABELS]; // names of the rainfall data locations
   int _nNumRainfallDays; // last rainfall day
-  double *_fRainfallData; // rainfall in 1/10 mm/day
+  double *_fRainfallData; // rainfall in mm/day
   double _fRainSheddingMultipliers[5]; // for no/low/high/extreme rainfall
 
   double _fVaccinationTarget;  // desired fraction to vaccinate in a community

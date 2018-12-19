@@ -461,7 +461,7 @@ int main(int argc, char *argv[]) {
     if (nNumVaccineLocationFirstDays>0) {
       for (int i=0; i<nNumVaccineLocationFirstDays; i++) {
 	if (nVaccineLocationFirstDay[i]==nStartDay+t) {
-	  cerr << "Start vaccinating " << szVaccineLocationLabel[i] << " on day " << nVaccineLocationFirstDay[i] << endl;
+	  cerr << "Start vaccinating " << szVaccineLocationLabel[i] << " on calendar day " << nVaccineLocationFirstDay[i] << endl;
 	  if ((nVaccineFirstDay<0) || (nVaccineFirstDay>nStartDay+t))
 	    nVaccineFirstDay = nStartDay+t; // trigger "global" vaccination flag
 	  for (int j=0; j < pop->getNumCells(); j++)

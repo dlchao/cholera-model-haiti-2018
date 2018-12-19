@@ -481,15 +481,16 @@ int Population::loadRainfall(const char *rainfallfilename) {
   }
   _nNumRainfallLabels--;
   cerr << _nNumRainfallLabels << " rainfall locations" << endl;
-  _fRainfallData = new double[_nNumRainfallLabels*5000];
-  memset(_fRainfallData, 0, _nNumRainfallLabels*5000*sizeof(double));
+  const int MAXRAINFALLDAYS=8000; // maximum number of days after Jan 1 2010 for rainfall data
+  _fRainfallData = new double[_nNumRainfallLabels*MAXRAINFALLDAYS];
+  memset(_fRainfallData, 0, _nNumRainfallLabels*MAXRAINFALLDAYS*sizeof(double));
   _nNumRainfallDays = 0;
   while (getline(iss, line)) {
     istringstream linestream(line);
     int rainday;
     linestream >> rainday;
-    if (rainday>5000) {
-      cerr << "ERROR: too many rain days: " << rainday << endl;
+    if (rainday>=MAXRAINFALLDAYS) {
+      cerr << "ERROR: too many rainfall days: " << rainday << endl;
     }
     if (rainday>_nNumRainfallDays)
       _nNumRainfallDays=rainday;
