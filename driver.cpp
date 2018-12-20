@@ -218,6 +218,11 @@ int main(int argc, char *argv[]) {
 	linestream >> temp;
 	cerr << "VE u5 reduction = " << temp << endl;
 	Community::setVE_u5reduction(temp);
+      } else if (argname.compare("vewaning")==0) {
+	double temp;
+	linestream >> temp;
+	cerr << "VE linear waning per day = " << temp << endl;
+	Community::setVaccineEfficacyWaning(temp);
       } else if (argname.compare("days")==0 || argname.compare("runlength")==0) {
 	linestream >> runlength;
 	cerr << "runlength (simulation days) = " << runlength << endl;

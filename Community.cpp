@@ -48,9 +48,10 @@ double Community::_fVES = 0.0;
 double Community::_fVEI = 0.5;
 double Community::_fVEP = 0.64;
 double Community::_fVE_u5_reduction = 0.0;
+double Community::_fVE_linearwaning = 0.0; // default is 0 waning of VE
 const int _nMaxIncubationDays = 5;
 double _fIncubationCDF[_nMaxIncubationDays] = {0.4,0.4,0.07,0.07,0.06};
-const int Community::_nMaxVaccineDays = 21;
+//const int Community::_nMaxVaccineDays = 21;
 int _fIncubationCDF100[100] = 
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -191,7 +192,7 @@ bool Person::step(gsl_rng *rng) {
     if ((_nVaccinationDay<0 && 
 	 gsl_rng_uniform(rng)<Community::getSymptomaticFraction()) ||
 	(_nVaccinationDay>=0 && 
-	 gsl_rng_uniform(rng)<Community::getSymptomaticFraction()*(1.0-Community::_fVEP*((Community::_fVE_u5_reduction==0.0 || _nAgeAtVaccination>=5)?1.0:(1.0-Community::_fVE_u5_reduction))))) {
+	 gsl_rng_uniform(rng)<Community::getSymptomaticFraction()*(1.0-Community::_fVEP*Community::getVaccineEfficacyWaning(_nVaccinationDay)*((Community::_fVE_u5_reduction==0.0 || _nAgeAtVaccination>=5)?1.0:(1.0-Community::_fVE_u5_reduction))))) {
       _bSymptomatic = true;
       _nSymptomaticCount++;
       _fBaseInfectiousness=_fInfectiousness=1.0;
@@ -205,18 +206,18 @@ bool Person::step(gsl_rng *rng) {
   if (_nVaccinationDay>=0) {
     if (_nInfectiousCountdown>0) {
       if (Community::_fVE_u5_reduction==0.0 || _nAgeAtVaccination>=5)
-	_fInfectiousness = _fBaseInfectiousness * (1.0-Community::_fVEI);
+	_fInfectiousness = _fBaseInfectiousness * (1.0-Community::_fVEI*Community::getVaccineEfficacyWaning(_nVaccinationDay));
       else
-	_fInfectiousness = _fBaseInfectiousness * (1.0-Community::_fVEI*(1.0-Community::_fVE_u5_reduction));
+	_fInfectiousness = _fBaseInfectiousness * (1.0-Community::_fVEI*Community::getVaccineEfficacyWaning(_nVaccinationDay)*(1.0-Community::_fVE_u5_reduction));
     } else if (_fBaseSusceptibility>0.0) {
       if (Community::_fVE_u5_reduction==0.0 || _nAgeAtVaccination>=5)
-	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES);
+	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES*Community::getVaccineEfficacyWaning(_nVaccinationDay));
       else
-	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES*(1.0-Community::_fVE_u5_reduction));
+	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES*Community::getVaccineEfficacyWaning(_nVaccinationDay)*(1.0-Community::_fVE_u5_reduction));
     }
   }  
-  if (_nVaccinationDay>=0 && _nVaccinationDay<Community::getMaxVaccineDays()-1)
-    _nVaccinationDay++; // not sure if we need this counter, since vaccine works instantly
+  if (_nVaccinationDay>=0) // && _nVaccinationDay<Community::getMaxVaccineDays()-1)
+    _nVaccinationDay++; // days since vaccination
   return true;
 }
 
@@ -404,6 +405,18 @@ int Community::prevaccinate(gsl_rng *rng, double f) {
   return nNumVaccinate;
 }
 
+// getVaccineEfficacyWaning - returns the relative efficacy of vaccine "days" after vaccination
+double Community::getVaccineEfficacyWaning(int days) {
+  if (_fVE_linearwaning<=0.0) {
+    return 1.0;
+  } else {
+    double temp=1.0-_fVE_linearwaning*days;
+    if (temp<0.0)
+      temp=0.0;
+    return temp;
+  }
+} 
+
 // setHygiene - sets the hygiene levels of the entire population
 // returns population size
 int Community::setHygiene(double f) {
@@ -553,22 +566,6 @@ void Community::drink(gsl_rng *rng) {
   }
 }
 
-    //    escape[0] *= 1.0-fContactProbability*_fWorkTimeFraction*Person::personArray[_residents[i]].getInfectiousness();
-    //    escape[1] *= 1.0-fContactProbability*(1.0-_fWorkTimeFraction)*Person::personArray[_residents[i]].getInfectiousness();
-
-  /*  // probability of escaping infection from residents
-  for (int i=0; i<_nNumResidents; i++) {
-    escape[0] *= 1.0-fContactProbability*_fWorkTimeFraction*Person::personArray[_residents[i]].getInfectiousness();
-    escape[1] *= 1.0-fContactProbability*(1.0-_fWorkTimeFraction)*Person::personArray[_residents[i]].getInfectiousness();
-  }
-  // probability of escaping infection from residents who work elsewhere
-  for (int i=0; i<_nNumVisitors; i++)
-    escape[2] *= 1.0-fContactProbability*(1.0-_fWorkTimeFraction)*Person::personArray[_visitors[i]].getInfectiousness();
-  // probability of escaping infection from visiting visitors
-  for (int i=0; i<_nNumVisitingVisitors; i++)
-    escape[3] *= 1.0-fContactProbability*_fWorkTimeFraction*Person::personArray[_visitingvisitors[i]].getInfectiousness();
-*/
-
 // tick - advance counters for each resident
 int Community::tick(gsl_rng *rng) {
   //  cerr << "tick" << endl;
@@ -588,46 +585,3 @@ int Community::tick(gsl_rng *rng) {
   }
   return count;
 }
-
-/*
-int main(void) {
-  gsl_rng * rng = gsl_rng_alloc(gsl_rng_taus2);
-  int nNumPops = 10;
-  Community *pop = new Community[nNumPops];
-  for (int i=0; i<nNumPops; i++)
-    pop[i].addSusceptibles(1000);
-
-  for (int i=0; i<35; i++) {
-    int id = Person::getNextPersonID();
-    pop[0].addWorker(id);
-    pop[1].addVisitor(id);
-  }
-  for (int i=0; i<50; i++) {
-    int id = Person::getNextPersonID();
-    pop[1].addWorker(id);
-    pop[0].addVisitor(id);
-  }
-
-  // seed infected
-  for (int i=0; i<20; i++)
-    Person::personArray[i].infect(rng);
-
-  // main loop
-  for (int day=0; day<50; day++) {
-    for (int i=0; i<nNumPops; i++)
-      pop[i].step(rng);
-    for (int i=0; i<Person::getLastPersonID(); i++)
-      Person::personArray[i].step(rng);
-
-    // output
-    for (int i=0; i<nNumPops; i++) {
-      int p = pop[i].getNumInfectious();
-      if (p>0)
-	cout << day << "," << i << "," << p << endl;
-    }
-  }
-  delete [] pop;
-  delete rng;
-  return 0;
-}
-*/

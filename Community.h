@@ -173,7 +173,7 @@ class Community {
   static void setHouseholdContactProbability(double f) {_fHouseholdContactProbability=f;}
   static void setAsymptomaticInfectiousnessMultiplier(double f) { _fAsymptomaticInfectiousnessMultiplier=f; }
   static double getAsymptomaticInfectiousnessMultiplier() { return _fAsymptomaticInfectiousnessMultiplier; }
-  static double getMaxVaccineDays() { return _nMaxVaccineDays; }
+  //  static double getMaxVaccineDays() { return _nMaxVaccineDays; }
 
   static void setMaxRuralPop(int i) { _nMaxRuralPop=i; }
   static void setRuralVibrio50Multiplier(double f) { _fRuralVibrio50Multiplier = f; }
@@ -190,10 +190,13 @@ class Community {
   static double getVEP() { return _fVEP; }
   static void setVE_u5reduction(double f) { _fVE_u5_reduction = f; }
   static double getVE_u5reduction() { return _fVE_u5_reduction; }
+  static double getVaccineEfficacyWaning(int days); // relative efficacy of vaccine "days" after vaccination
+  static void setVaccineEfficacyWaning(double f) {_fVE_linearwaning=f;}// relative efficacy of vaccine "days" after vaccination
 
  public:
   static double _fVES, _fVEI, _fVEP; // vaccine efficacy
   static double _fVE_u5_reduction;   // proportion reduction of VE for <5y
+  static double _fVE_linearwaning;   // daily linear waning rate for VE
 
  protected:
   int _nID;
@@ -220,7 +223,7 @@ class Community {
   static double _fFamiltySizeCDF[];
   static double _fAsymptomaticInfectiousnessMultiplier;
   static double _fSymptomaticFraction;
-  static const int _nMaxVaccineDays; // time for vaccine to reach max efficacy
+  //  static const int _nMaxVaccineDays; // time for vaccine to reach max efficacy
   static int _nMaxRuralPop;
   static double _fRuralVibrio50Multiplier;
   static double _fRuralSheddingMultiplier;
