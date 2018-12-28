@@ -54,7 +54,6 @@ int main(int argc, char *argv[]) {
   Community *model=NULL;
   Population *pop=NULL;
   int communitysize = 1000;
-  bool bHaiti = true;    // use Haiti data
   bool bNoTransmit = false; // is cholera transmissible?
   int nStartCell = -1;   // where was the first case?
   int nGridSize = -1;    // use grid grid?
@@ -97,7 +96,7 @@ int main(int argc, char *argv[]) {
   double fSymptomaticFraction=0.2;
   double fAsymptomaticInfectiousness=0.1;
   int nTotalSymptomatic=0; // count of symptomatic cholera
-  int nStartDay = 31+28+31+30+31+30+31+31+30+9; // first calendar day of simulation (October 9)
+  int nStartCalendarDay = 31+28+31+30+31+30+31+31+30+9; // first calendar day of simulation (October 9)
   int nWaningDays = -1;  // average number of days for immunity to wane
   
   if (argc>1) {
@@ -161,6 +160,7 @@ int main(int argc, char *argv[]) {
 	if (nNumVaccineLocationFirstDays<=0) {
 	  nVaccineLocationFirstDay = new int[100];
 	  szVaccineLocationLabel = new string[100];
+	  nNumVaccineLocationFirstDays = 0;
 	}
 	linestream >> szVaccineLocationLabel[nNumVaccineLocationFirstDays]; // vaccinate cells with this label
 	linestream >> nVaccineLocationFirstDay[nNumVaccineLocationFirstDays]; // on this calendar day
@@ -272,10 +272,6 @@ int main(int argc, char *argv[]) {
       } else if (argname.compare("grid")==0) {
 	linestream >> nGridSize;
 	cerr << "grid dimension = " << nGridSize << endl;
-      } else if (argname.compare("haiti")==0) {
-	bHaiti = true;
-	nGridSize = -1;
-	cerr << "Haiti population" << endl;
       } else if (argname.compare("notransmit")==0) {
 	bNoTransmit=true;
 	cerr << "no secondary transmission" << endl;
@@ -304,7 +300,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (bHaiti) { // Haiti
     pop=new Population();
     pop->loadPopulation(rng, 
 		      fWorkingFraction,
@@ -322,7 +317,7 @@ int main(int argc, char *argv[]) {
     pop->setDriveProb(fDriveProb);
     pop->setRainSheddingMultipliers(fRainSheddingMultiplier1,fRainSheddingMultiplier2,fRainSheddingMultiplier3,fRainSheddingMultiplier4,fRainSheddingMultiplier5);
     pop->setVaccinationTarget(fVaccinateFraction);
-    pop->setDayToStart(nStartDay); // October 9
+    pop->setDayToStart(nStartCalendarDay); // October 9
     pop->setWaningDays(nWaningDays);
     if (runlength>365) {
       pop->setDayToAge(31+28+15); // March 15
@@ -381,13 +376,6 @@ int main(int argc, char *argv[]) {
       nStartCell = pop->infectOne(rng);
       cerr << "infected one person" << endl;
     }
-  } else { // one community
-    cerr << "one community" << endl;
-    pop=new Population();
-    pop->loadGrid(rng,1,communitysize);
-    int source = pop->infect(rng, 1, 0, 0, true); // put one symptomatic person here
-    cerr << "start symptomatic " << (pop->getNumResidents(source)-pop->getNumSusceptible(source)) << " / " << pop->getNumResidents(source) << " residents in community " << source << endl;
-  }
 
   // pre-vaccinate?
   if (fVaccinateFraction>0.0 && nVaccinateThreshold<0)
@@ -441,7 +429,7 @@ int main(int argc, char *argv[]) {
       return false;
     }
     cerr << "outputing daily information to " << szDailyOutputFile << endl;
-    outputFile << "time,location,residents,susceptible,symptomatic,new symptomatic,new symptomatic U5,infectious"<< endl;;
+    outputFile << "time,location,residents,susceptible,symptomatic,new symptomatic,new symptomatic U5,infectious,vaccinated,vaccinesused"<< endl;;
   } else {
     cerr << "not outputing information" << endl;
   }
@@ -465,10 +453,10 @@ int main(int argc, char *argv[]) {
       cerr << "simulation day " << t << endl;
     if (nNumVaccineLocationFirstDays>0) {
       for (int i=0; i<nNumVaccineLocationFirstDays; i++) {
-	if (nVaccineLocationFirstDay[i]==nStartDay+t) {
+	if (nVaccineLocationFirstDay[i]==nStartCalendarDay+t) {
 	  cerr << "Start vaccinating " << szVaccineLocationLabel[i] << " on calendar day " << nVaccineLocationFirstDay[i] << endl;
-	  if ((nVaccineFirstDay<0) || (nVaccineFirstDay>nStartDay+t))
-	    nVaccineFirstDay = nStartDay+t; // trigger "global" vaccination flag
+	  if ((nVaccineFirstDay<0) || (nVaccineFirstDay>nStartCalendarDay+t))
+	    nVaccineFirstDay = nStartCalendarDay+t; // trigger "global" vaccination flag
 	  for (int j=0; j < pop->getNumCells(); j++)
 	    if (szVaccineLocationLabel[i].compare(pop->getLabel(j))==0) {
 	      pop->prioritizeCell(j);
@@ -477,17 +465,16 @@ int main(int argc, char *argv[]) {
       }
     }
     //    cerr << t << " vaccines available: " << pop->getNumVaccinesAvailable() << ", starting on day " << nVaccineFirstDay << endl;
-    if (nVaccineFirstDay==nStartDay+t) {
+    if (nVaccineFirstDay==nStartCalendarDay+t) {
       pop->setNumVaccinesAvailable(nVaccineStockpile);
       pop->setVaccinationThreshold(nVaccinateThreshold);
       pop->setVaccinationDelay(nVaccinateDelay);
       cerr << "Vaccination starts. Vaccines available: " << nVaccineStockpile << endl;
     }
-    if (nVaccinePerDay>0 && nVaccineFirstDay<=nStartDay+t)
+    if (nVaccinePerDay>0 && nVaccineFirstDay<=nStartCalendarDay+t)
       pop->setNumVaccinesAvailable(pop->getNumVaccinesAvailable()+nVaccinePerDay);
     if (pop->getNumVaccinesAvailable()>nVaccineCap)
       pop->setNumVaccinesAvailable(nVaccineCap);
-
 
     if (pop) {
       pop->step(rng);
@@ -515,18 +502,23 @@ int main(int argc, char *argv[]) {
     }
     // print location-level results
     if (pop && outputFile.is_open()) {
-      int residents[50]; // can only handle 50 unique "labels" for cells
-      int susceptibles[50];
-      int newsymptomatic[50];
-      int newsymptomaticu5[50]; // new symptomatics under 5 years old
-      int symptomatic[50];
-      int infectious[50];
-      memset(residents, 0, sizeof(int)*50);
-      memset(susceptibles, 0, sizeof(int)*50);
-      memset(newsymptomatic, 0, sizeof(int)*50);
-      memset(newsymptomaticu5, 0, sizeof(int)*50);
-      memset(symptomatic, 0, sizeof(int)*50);
-      memset(infectious, 0, sizeof(int)*50);
+      const int MAXLABELS=50;
+      int residents[MAXLABELS]; // can only handle 50 unique "labels" for cells
+      int susceptibles[MAXLABELS];
+      int newsymptomatic[MAXLABELS];
+      int newsymptomaticu5[MAXLABELS]; // new symptomatics under 5 years old
+      int symptomatic[MAXLABELS];
+      int infectious[MAXLABELS];
+      int vaccinated[MAXLABELS];
+      int vaccused[MAXLABELS];
+      memset(residents, 0, sizeof(int)*MAXLABELS);
+      memset(susceptibles, 0, sizeof(int)*MAXLABELS);
+      memset(newsymptomatic, 0, sizeof(int)*MAXLABELS);
+      memset(newsymptomaticu5, 0, sizeof(int)*MAXLABELS);
+      memset(symptomatic, 0, sizeof(int)*MAXLABELS);
+      memset(infectious, 0, sizeof(int)*MAXLABELS);
+      memset(vaccinated, 0, sizeof(int)*MAXLABELS);
+      memset(vaccused, 0, sizeof(int)*MAXLABELS);
       int labelnum = -1;
       string lastdept = "----";
       for (int cellnum=0; cellnum < pop->getNumCells(); cellnum++) {
@@ -538,17 +530,19 @@ int main(int argc, char *argv[]) {
 	    }
 	  }
 	}
-	if (labelnum<50) {
+	if (labelnum<MAXLABELS) {
 	  residents[labelnum] += pop->getNumResidents(cellnum);
 	  newsymptomatic[labelnum]+=pop->getNumNewSymptomatic(cellnum);
 	  newsymptomaticu5[labelnum]+=pop->getNumNewSymptomatic(cellnum,0,4);
 	  symptomatic[labelnum]+=pop->getNumSymptomatic(cellnum);
 	  susceptibles[labelnum]+=pop->getNumSusceptible(cellnum);
 	  infectious[labelnum]+=pop->getNumInfectious(cellnum);
+	  vaccinated[labelnum]+=pop->getNumVaccinated(cellnum);
+	  vaccused[labelnum]+=pop->getNumVaccinesUsed(cellnum);
 	}
       }
       for (int labelnum=0; labelnum<pop->getNumUniqueLabels(); labelnum++) {
-	outputFile << pop->getDay() << "," << pop->getUniqueLabel(labelnum) << "," << residents[labelnum] << "," << susceptibles[labelnum] << "," << symptomatic[labelnum] << "," << newsymptomatic[labelnum] <<  "," << newsymptomaticu5[labelnum] <<  "," << infectious[labelnum] << endl;
+	outputFile << pop->getDay() << "," << pop->getUniqueLabel(labelnum) << "," << residents[labelnum] << "," << susceptibles[labelnum] << "," << symptomatic[labelnum] << "," << newsymptomatic[labelnum] <<  "," << newsymptomaticu5[labelnum] <<  "," << infectious[labelnum] << "," << vaccinated[labelnum] <<  "," << vaccused[labelnum] << endl;
 	if (!gridOutputFile.is_open())
 	  nTotalSymptomatic += newsymptomatic[labelnum];
       }

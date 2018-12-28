@@ -385,6 +385,7 @@ int Community::vaccinate(gsl_rng *rng, double f) {
       if (!p.isVaccinated()) {
 	p.vaccinate();
 	nNumVaccinate++;
+	_nNumVaccinesUsed++;
       }
     }
   }
@@ -399,6 +400,7 @@ int Community::prevaccinate(gsl_rng *rng, double f) {
       if (!p.isVaccinated()) {
 	p.prevaccinate();
 	nNumVaccinate++;
+	_nNumVaccinesUsed++;
       }
     }
   }

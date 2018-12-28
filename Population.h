@@ -85,6 +85,12 @@ class Population {
       total += _community[i].getNumVaccinated();
     return total;
   }
+  int getNumVaccinesUsed(int gridindex) {
+    int total=0;
+    for (int i=_nCommunityStart[gridindex]; i<_nCommunityStart[gridindex]+_nCommunities[gridindex]; i++)
+      total += _community[i].getNumVaccinesUsed();
+    return total;
+  }
   double getVibrioLevel(int gridindex) {
     double total=0.0;
     for (int i=_nCommunityStart[gridindex]; i<_nCommunityStart[gridindex]+_nCommunities[gridindex]; i++)

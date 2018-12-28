@@ -117,6 +117,7 @@ class Community {
     _nNumResidents=0;
     _nNumVisitors=0;
     _nMaxVisitors=0;
+    _nNumVaccinesUsed=0;
     _fVibrio=_fHyperVibrio=_fRiverVibrio=_fRiverHyperVibrio=0.0;
     _bRiver = false;
     _residents = _visitors = NULL;
@@ -154,6 +155,7 @@ class Community {
   int getCumulativeSymptomatic();
   int getNumResidents() { return _nNumResidents; }
   int getNumVaccinated();
+  int getNumVaccinesUsed() { return _nNumVaccinesUsed; }
   int getResidentID(int i) { return _residents[i]; }
   int vaccinate(gsl_rng *rng, double f);
   int prevaccinate(gsl_rng *rng, double f);
@@ -205,13 +207,13 @@ class Community {
   int _nNumResidents;
   int _nNumVisitors;
   int _nMaxVisitors;
+  int _nNumVaccinesUsed; // total vaccines ever used here
   double _fVibrio;
   double _fHyperVibrio;
   double _fRiverVibrio;
   double _fRiverHyperVibrio;
   bool _bRiver;
   static double _fHouseholdContactProbability;
-  //  static double _fSheddingRate;
   static double _fHyperVibrioMultiplier;
   static double _fVibrioDecay;
   static double _fVibrio50;
@@ -223,7 +225,6 @@ class Community {
   static double _fFamiltySizeCDF[];
   static double _fAsymptomaticInfectiousnessMultiplier;
   static double _fSymptomaticFraction;
-  //  static const int _nMaxVaccineDays; // time for vaccine to reach max efficacy
   static int _nMaxRuralPop;
   static double _fRuralVibrio50Multiplier;
   static double _fRuralSheddingMultiplier;

@@ -632,9 +632,6 @@ int Population::infect(gsl_rng *rng, int num, double longitude, double latitude,
 int Population::infectOne(gsl_rng *rng, bool bMakeSymptomatic) {
   int commindex = gsl_rng_uniform_int(rng, _nNumCommunities);
   _community[commindex].infect(rng, 1, bMakeSymptomatic);
-  //  for (int i=0; i<_grid->getSize(); i++)
-  //    if (commindex<_nCommunityStart[i+1])
-  //      return i; // FIX THIS!!!!
   return -1;
 }
 
@@ -751,7 +748,6 @@ int Population::drive(gsl_rng *rng) {
 // make those <1 year old fully susceptible (birth)
 void Population::agePopulation(gsl_rng *rng) {
   const int AGEMAX = 100; // maximum age in years
-  //  const int COHORTMAX = 3000; // largest number of people in one age bin
   const int COHORTMAX = 3000; // largest number of people in one age bin
   cerr << "Aging population: simulation day " << _nDay << ", calendar day " << (_nDay+_nDayStartOffset) << endl;
   for (int gridnum=0; gridnum < _grid->getSize(); gridnum++) {
@@ -926,8 +922,8 @@ int Population::step(gsl_rng *rng) {
     // vaccinate if ready
     if (_nNumVaccinesAvailable>_nNumVaccinesUsed) {
       //      cerr << "_nNumVaccinesAvailable>_nNumVaccinesUsed : " << _nNumVaccinesAvailable << ">" << _nNumVaccinesUsed << endl; ////////////
-      int nNumPeopleWant = 0;
-      int nNumCellsWant = 0;
+      int nNumPeopleWant = 0; // about how many people want vaccine
+      int nNumCellsWant = 0;  // how many grid cells want vaccine
       for (int gridnum=0; gridnum < _grid->getSize(); gridnum++)
 	if (!_bGridVaccinated[gridnum] &&
 	    _nVaccinationDay[gridnum]<=_nDay+_nDayStartOffset &&
@@ -936,8 +932,8 @@ int Population::step(gsl_rng *rng) {
 	  nNumCellsWant++;
 	}
       nNumPeopleWant *= _fVaccinationTarget;
-      //      cerr << "Want vaccine: " << nNumPeopleWant << "/" <<  ", " << nNumCellsWant << "," << _fVaccinationTarget << endl;
-      //cerr << "Have: " << _nNumVaccinesAvailable-_nNumVaccinesUsed << endl;
+      //      cerr << "Want vaccine: " << nNumPeopleWant << " people" <<  ", " << nNumCellsWant << " cells," << _fVaccinationTarget << endl;
+      //      cerr << "Have: " << _nNumVaccinesAvailable-_nNumVaccinesUsed << " vaccines" << endl;
       if (nNumPeopleWant<=_nNumVaccinesAvailable-_nNumVaccinesUsed) {
 	// enough vaccine for everyone who wants it
 	for (int gridnum=0; gridnum < _grid->getSize(); gridnum++) {
@@ -953,23 +949,25 @@ int Population::step(gsl_rng *rng) {
 	  }
 	}
       } else if (nNumPeopleWant>0) {
-	// not enough vaccine - randomly choose cells to vaccinate until we run out
-	int miss = 0;
+	// not enough vaccine - randomly choose grid cells to vaccinate until we run out
+	int miss = 0; // number of times we chose grid cells that demand more vaccine than we have
 	while (_nNumVaccinesAvailable>_nNumVaccinesUsed && nNumCellsWant>0 && miss<5) {
-	  int gridcount = 0;
+	  int gridcount = gsl_rng_uniform_int(rng, nNumCellsWant); // choose the nth unvaccinated cell
 	  int gridid = 0;
-	  gridcount = gsl_rng_uniform_int(rng, nNumCellsWant); // choose the nth unvaccinated cell
 	  for (gridid=0; gridid<_grid->getSize() && gridcount>=0; gridid++)
 	    if (!_bGridVaccinated[gridid] &&
 		_nVaccinationDay[gridid]<=_nDay+_nDayStartOffset &&
-		getNumResidents(gridid)>0)
+		getNumResidents(gridid)>0) {
 	      gridcount--;
+	    }
+	  gridid--;
 
-	  if (getNumResidents(gridid)*_fVaccinationTarget*0.75>_nNumVaccinesAvailable-_nNumVaccinesUsed) {
+	  if (getNumResidents(gridid)*_fVaccinationTarget>_nNumVaccinesAvailable-_nNumVaccinesUsed) {
 	    // not enough vaccine for this cell. try again
 	    miss++;
 	  } else {
 	    // vaccinate this cell
+	    miss=0;
 	    for (int j=_nCommunityStart[gridid]; j<_nCommunityStart[gridid]+_nCommunities[gridid]; j++)
 	      _nNumVaccinesUsed += _community[j].vaccinate(rng, _fVaccinationTarget);
 	    _bGridVaccinated[gridid] = true;
