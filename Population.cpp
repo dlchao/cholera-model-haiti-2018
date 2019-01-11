@@ -888,10 +888,9 @@ int Population::step(gsl_rng *rng) {
   }
 
   // waning immunity from natural infection
-  // compute daily probability of waning
   if (_nDaysToWane>0) {
-    double probperday=1.0-exp(-1.0/(_nDaysToWane)); // waning at a rate of (3 years)^-1
-    int skip = ceil(log(gsl_rng_uniform(rng))/log(1-probperday)); // draw from geometric distribution
+    double probperday=1.0-exp(-1.0/(_nDaysToWane)); // daily waning probability
+    int skip = ceil(log(gsl_rng_uniform(rng))/log(1-probperday)); // how many people in a row do not wane? draw from geometric distribution
     for (int personnum=0; personnum<Person::getLastPersonID(); personnum+=skip) {
       // make this person fully susceptible
       if (Person::personArray[personnum].getBaseSusceptibility()<1.0)

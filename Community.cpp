@@ -165,9 +165,9 @@ void Person::setBaseSusceptibility(double d) {
       //      _fInfectiousness = _fBaseInfectiousness * (1.0-Community::_fVEI*Community::_fVaccineBuildup[_nVaccinationDay]);
     } else if (_fBaseSusceptibility>0.0) {
       if (Community::_fVE_u5_reduction==0.0 || _nAgeAtVaccination>=5) 
-	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES);
+	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES*Community::getVaccineEfficacyWaning(_nVaccinationDay));
       else
-	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES*(1.0-Community::_fVE_u5_reduction));
+	_fSusceptibility = _fBaseSusceptibility * (1.0-Community::_fVES*(1.0-Community::_fVE_u5_reduction)*Community::getVaccineEfficacyWaning(_nVaccinationDay));
     }
   } else
     _fSusceptibility = _fBaseSusceptibility;
