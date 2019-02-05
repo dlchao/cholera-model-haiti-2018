@@ -41,8 +41,8 @@ double Community::_fRuralSheddingMultiplier=1.0; // not used yet
 double Community::_fRiverBetaMultiplier=1.0;
 double Community::_fRiverSheddingMultiplier=1.0;
 
-int nMinInfectiousDays = 7;
-int nMaxInfectiousDays = 14;
+int Community::_nMinInfectiousDays = 7;
+int Community::_nMaxInfectiousDays = 13;
 double fWithdrawFraction = 0.75;
 double Community::_fVES = 0.0;
 double Community::_fVEI = 0.5;
@@ -93,7 +93,7 @@ void Person::infect(gsl_rng *rng) {
 int Person::makesymptomatic(gsl_rng *rng) {
   if (_bSymptomatic)
     return 0;
-  _nInfectiousCountdown = nMinInfectiousDays+gsl_rng_uniform_int(rng, nMaxInfectiousDays-nMinInfectiousDays);
+  _nInfectiousCountdown = Community::_nMinInfectiousDays+gsl_rng_uniform_int(rng, 1+Community::_nMaxInfectiousDays-Community::_nMinInfectiousDays); // note that infectiousness can be up to Community::_nMaxInfectiousDays
   _nInfectiousCountup=0;
   _fBaseSusceptibility=_fSusceptibility=0.0;
   _bSymptomatic = true;
@@ -200,7 +200,7 @@ bool Person::step(gsl_rng *rng) {
       _bSymptomatic = false;
       _fBaseInfectiousness=_fInfectiousness=Community::getAsymptomaticInfectiousnessMultiplier();
     }
-    _nInfectiousCountdown = nMinInfectiousDays+gsl_rng_uniform_int(rng, nMaxInfectiousDays-nMinInfectiousDays);
+    _nInfectiousCountdown = Community::_nMinInfectiousDays+gsl_rng_uniform_int(rng, 1+Community::_nMaxInfectiousDays-Community::_nMinInfectiousDays); // note that infectiousness can be up to Community::_nMaxInfectiousDays
     _nInfectiousCountup=0;
   }
   if (_nVaccinationDay>=0) {

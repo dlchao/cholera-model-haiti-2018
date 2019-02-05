@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
   int nStartCell = -1;   // where was the first case?
   int nGridSize = -1;    // use grid grid?
   double kappa = 70;     // vibrio environment half saturation
-  double hyper = 100.00; // 0.0;
+  double hyper = 100.00; // one-day hyperinfectiousness of shed vibrio (0.0)
   double beta = 0.12;    // 1.0; might be 0.25 according to paper
   double rho = 3.8;      // gravity model
   int runlength = 250;   // in days
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 	cerr << "kappa = " << kappa << endl;
       } else if (argname.compare("hyper")==0) {
 	linestream >> hyper;
-	cerr << "hyper = " << hyper << endl;
+	cerr << "hyperinfectiousness = " << hyper << endl;
       } else if (argname.compare("beta")==0) {
 	linestream >> beta;
 	cerr << "beta = " << beta << endl;
@@ -223,6 +223,16 @@ int main(int argc, char *argv[]) {
 	linestream >> temp;
 	cerr << "VE linear waning per day = " << temp << endl;
 	Community::setVaccineEfficacyWaning(temp);
+      } else if (argname.compare("mininfectiousperiod")==0) {
+	int temp;
+	linestream >> temp;
+	cerr << "minimum infectious period = " << temp << endl;
+	Community::setMinInfectiousDays(temp);
+      } else if (argname.compare("maxinfectiousperiod")==0) {
+	int temp;
+	linestream >> temp;
+	cerr << "maximum infectious period = " << temp << endl;
+	Community::setMaxInfectiousDays(temp);
       } else if (argname.compare("days")==0 || argname.compare("runlength")==0) {
 	linestream >> runlength;
 	cerr << "runlength (simulation days) = " << runlength << endl;

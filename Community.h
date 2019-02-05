@@ -194,11 +194,17 @@ class Community {
   static double getVE_u5reduction() { return _fVE_u5_reduction; }
   static double getVaccineEfficacyWaning(int days); // relative efficacy of vaccine "days" after vaccination
   static void setVaccineEfficacyWaning(double f) {_fVE_linearwaning=f;}// relative efficacy of vaccine "days" after vaccination
+  static void setMinInfectiousDays(int i) { _nMinInfectiousDays=i; }
+  static void setMaxInfectiousDays(int i) { _nMaxInfectiousDays=i; }
+  static int getMinInfectiousDays(void) { return _nMinInfectiousDays; }
+  static int getMaxInfectiousDays(void) { return _nMaxInfectiousDays; }
 
  public:
   static double _fVES, _fVEI, _fVEP; // vaccine efficacy
   static double _fVE_u5_reduction;   // proportion reduction of VE for <5y
   static double _fVE_linearwaning;   // daily linear waning rate for VE
+  static int _nMinInfectiousDays; // infectious for at least this many days
+  static int _nMaxInfectiousDays; // can be infectious up to this many days
 
  protected:
   int _nID;
