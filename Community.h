@@ -1,6 +1,6 @@
 /*
  * Community.h
- * 11/2010
+ * 11/2010 (updated 2/2019)
  */
 #ifndef __COMMUNITY_H
 #define __COMMUNITY_H
@@ -175,13 +175,7 @@ class Community {
   static void setHouseholdContactProbability(double f) {_fHouseholdContactProbability=f;}
   static void setAsymptomaticInfectiousnessMultiplier(double f) { _fAsymptomaticInfectiousnessMultiplier=f; }
   static double getAsymptomaticInfectiousnessMultiplier() { return _fAsymptomaticInfectiousnessMultiplier; }
-  //  static double getMaxVaccineDays() { return _nMaxVaccineDays; }
 
-  static void setMaxRuralPop(int i) { _nMaxRuralPop=i; }
-  static void setRuralVibrio50Multiplier(double f) { _fRuralVibrio50Multiplier = f; }
-  static void setRuralSheddingMultiplier(double f) { _fRuralSheddingMultiplier = f; }
-  static double getRiverBetaMultiplier() { return _fRiverBetaMultiplier; }
-  static void setRiverBetaMultiplier(double f) { _fRiverBetaMultiplier = f; }
   static double getRiverSheddingMultiplier() { return _fRiverSheddingMultiplier; }
   static void setRiverSheddingMultiplier(double f) { _fRiverSheddingMultiplier = f; }
   static void setVEI(double f) { _fVEI = f; }
@@ -232,9 +226,6 @@ class Community {
   static double _fAsymptomaticInfectiousnessMultiplier;
   static double _fSymptomaticFraction;
   static int _nMaxRuralPop;
-  static double _fRuralVibrio50Multiplier;
-  static double _fRuralSheddingMultiplier;
-  static double _fRiverBetaMultiplier;
   static double _fRiverSheddingMultiplier;
 };
 #endif

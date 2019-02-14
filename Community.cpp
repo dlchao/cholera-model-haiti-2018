@@ -1,6 +1,6 @@
 /*
  * Community.cpp
- * 11/2010 (updated 5/2018)
+ * 11/2010 (updated 2/2019)
  * Contains classes for Person and Community (well-mixed collection of people)
  */
 
@@ -35,10 +35,6 @@ double Community::_fVibrioBeta=1.0;
 int Community::_nNextID = 0;
 double Community::_fSymptomaticFraction = 0.1;
 double Community::_fAsymptomaticInfectiousnessMultiplier = 0.1;
-int Community::_nMaxRuralPop=2505;
-double Community::_fRuralVibrio50Multiplier=1.0;
-double Community::_fRuralSheddingMultiplier=1.0; // not used yet
-double Community::_fRiverBetaMultiplier=1.0;
 double Community::_fRiverSheddingMultiplier=1.0;
 
 int Community::_nMinInfectiousDays = 7;
@@ -51,7 +47,6 @@ double Community::_fVE_u5_reduction = 0.0;
 double Community::_fVE_linearwaning = 0.0; // default is 0 waning of VE
 const int _nMaxIncubationDays = 5;
 double _fIncubationCDF[_nMaxIncubationDays] = {0.4,0.4,0.07,0.07,0.06};
-//const int Community::_nMaxVaccineDays = 21;
 int _fIncubationCDF100[100] = 
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -501,8 +496,6 @@ void Community::drink(gsl_rng *rng) {
   assert(_fRiverVibrio>=0.0);
   assert(_fRiverHyperVibrio>=0.0);
   double p = _fVibrioBeta * v/(_fVibrio50 + v);
-  //  if (_bRiver)
-  //    p *= _fRiverBetaMultiplier * log(_nNumResidents);
 
   // transmission from environment
   if (p>0.0) {

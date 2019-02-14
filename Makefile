@@ -18,14 +18,8 @@ default: choleramodel
 choleramodel: Makefile GridCells.o Community.o Population.o R0Community.o driver.o
 	$(CCLINKER) -o choleramodel driver.o GridCells.o Community.o Population.o R0Community.o $(LDFLAGS) $(LIBS)
 
-grid: Makefile GridCells.o EpiModel.o sir.o
-	$(CCLINKER) -o grid sir.o GridCells.o EpiModel.o $(LDFLAGS) $(LIBS)
-
 GridCells.o: GridCells.cpp GridCells.h Makefile
 	$(CPP) $(CFLAGS) $(OPTI) $(INCLUDES) $(DEFINES) -c GridCells.cpp
-
-EpiModel.o: EpiModel.cpp EpiModel.h Makefile
-	$(CPP) $(CFLAGS) $(OPTI) $(INCLUDES) $(DEFINES) -c EpiModel.cpp
 
 Community.o: Community.cpp Community.h Makefile
 	$(CPP) $(CFLAGS) $(OPTI) $(INCLUDES) $(DEFINES) -c Community.cpp

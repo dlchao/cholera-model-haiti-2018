@@ -44,7 +44,7 @@ Population::Population() {
   _nNumVaccinesUsed = 0;
   _nNumVaccinesAvailable = 100000000;
   _fHygieneTarget = 0.0;
-  _nTargetGroupSize = 500;
+  _nTargetCommunitySize = 2000;
   _nMaxCommunitiesOnRiver = 6;
   _fDriveProb = 0.00001;
   _bHighway = NULL;
@@ -214,7 +214,7 @@ int Population::loadPopulation(gsl_rng *rng,
 	    _szUniqueLabels[_nNumUniqueLabels++] = lastdept;
 
 	  // create new communities by dividing cell population among them
-	  int numcomms = round(cellpop/_nTargetGroupSize);
+	  int numcomms = round(cellpop/_nTargetCommunitySize);
 	  int popleft = cellpop; // how many people are left to allocate
 	  if (numcomms==0)
 	    numcomms=1;
@@ -266,7 +266,7 @@ int Population::loadPopulation(gsl_rng *rng,
   for (int sourceindex=0; sourceindex<_grid->getSize(); sourceindex++)
     assignWorkPlaces(rng, sourceindex, _fWorkingFraction,
 		     tau1, tau2, rho);
-  cerr << "DONE assigning workplaces (" << (100*_fWorkingFraction) << "% employment)" << endl;
+  cerr << "DONE assigning workplaces (" << (100*_fWorkingFraction) << "% employment of working age)" << endl;
   return 1;
 }
 

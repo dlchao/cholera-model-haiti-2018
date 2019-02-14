@@ -1,6 +1,6 @@
 /*
  * Population.h
- * 11/2010 (updated 5/2018)
+ * 11/2010 (updated 2/2019)
  */
 #ifndef __POPULATION_H
 #define __POPULATION_H
@@ -35,6 +35,7 @@ class Population {
   void setDayToAge(int day) { _nDayToAge = day; }
   void setDayToStart(int day) { _nDayStartOffset = day; }
   void setWaningDays(int days) { _nDaysToWane = days; }
+  void setTargetCommunitySize(int n) { _nTargetCommunitySize = n; }
   int getNumCells() { return _grid->getSize(); }
   int getNumCommunities() { return _nNumCommunities; }
   int getNumInfectious(int gridindex) {
@@ -166,7 +167,7 @@ class Population {
   int _nNumUniqueLabels; // number of different szLabels
   string _szUniqueLabels[50]; // unique szLabels
 
-  int _nTargetGroupSize; // ideal size for a single community
+  int _nTargetCommunitySize; // ideal size for a single community
   int _nDay;             // days simulated so far (starts at 0)
   int _nDayStartOffset;  // starting calendar day of simulation
   int _nDayToAge;        // what calendar day to age the population?

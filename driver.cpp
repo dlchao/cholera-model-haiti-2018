@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
   GridCells *g=NULL;
   Community *model=NULL;
   Population *pop=NULL;
-  int communitysize = 1000;
+  int communitysize = -1;
   bool bNoTransmit = false; // is cholera transmissible?
   int nStartCell = -1;   // where was the first case?
   int nGridSize = -1;    // use grid grid?
@@ -73,19 +73,19 @@ int main(int argc, char *argv[]) {
   string *szVaccineLocationLabel=NULL;    // names of locations for vaccination
   int nVaccinePerDay = 0;  // amount of vaccine that arrives per day after first day
   double fHygiene = 0.0;
-  double fWorkingFraction=0.28; // fraction of people who work (ages 15y+)
-  double fRiverShedFraction=0.1;//  double fRiverShedFraction=0.0;
-  double fRiverFlowDelta = 0.05;//0.0
-  int nRiverShedCycles=9; //0;
+  double fWorkingFraction=0.6; // fraction of working-age people (15y+) who work, from https://fred.stlouisfed.org/series/SLEMPTOTLSPZSHTI
+  double fRiverShedFraction=0.1;
+  double fRiverFlowDelta = 0.05;
+  int nRiverShedCycles=9;
   bool bPrioritizeRiver = false;
-  double fTravelProb = 0.000005; //0.0;
-  double fDriveProb =  0.00005; //0.0;
+  double fTravelProb = 0.000005;
+  double fDriveProb =  0.00005;
   double fRainSheddingMultiplier1 = 1.0;
   double fRainSheddingMultiplier2 = 1.0;
   double fRainSheddingMultiplier3 = 1.0;
   double fRainSheddingMultiplier4 = 1.0;
   double fRainSheddingMultiplier5 = 1.0;
-  double fVibrioHalflife = 30.0; // in days
+  double fVibrioHalflife = 14.0; // in days
   string szRainFile="haiti-rainfall.txt";
   string szTractFile=""; //grid-cells.csv";
   string szDailyOutputFile="location-infections.csv"; // daily output by location (labels)
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 	linestream >> p;
 	cerr << "p = " << p << endl;
 	fHouseholdContactProbability = p;
-      } else if (argname.compare("size")==0) {
+      } else if (argname.compare("communitysize")==0) {
 	linestream >> communitysize;
 	cerr << "community size = " << communitysize << endl;
       } else if (argname.compare("k")==0 || argname.compare("kappa")==0) {
@@ -325,6 +325,9 @@ int main(int argc, char *argv[]) {
     pop->setRiverFlowDelta(fRiverFlowDelta);
     pop->setTravelProb(fTravelProb);
     pop->setDriveProb(fDriveProb);
+    if (communitysize>0) {
+      pop->setTargetCommunitySize(communitysize);
+    }
     pop->setRainSheddingMultipliers(fRainSheddingMultiplier1,fRainSheddingMultiplier2,fRainSheddingMultiplier3,fRainSheddingMultiplier4,fRainSheddingMultiplier5);
     pop->setVaccinationTarget(fVaccinateFraction);
     pop->setDayToStart(nStartCalendarDay); // October 9
@@ -358,8 +361,6 @@ int main(int argc, char *argv[]) {
       // pops of 144467, 215390, 112986, 28507, 83375
       // The first days of cas vu in Artibonite: 1111 1840 1833 2138 1675
       // First days of cas vu in Centre: 61  92 244 165
-      //      int count1 = 0;
-      //      int count2 = 0;
       cerr << "seeding epidemic" << endl;
       for (int i=0; i < pop->getNumCells(); i++) {
 	if (pop->getRiver(i)>0) {
@@ -367,17 +368,17 @@ int main(int argc, char *argv[]) {
 	  double newlatitude = pop->getlatitude(i);
 	  if ((newlongitude+72.477046)*(newlongitude+72.477046)+(newlatitude-19.121733)*(newlatitude-19.121733) < 0.0004) { // Petite Riviere de l'Artibonite
 	    //	    cerr << "Petite Riviere vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
-	    pop->setRiverVibrioLevel(i, 20);
+	    pop->setRiverVibrioLevel(i, 100);
 	  } else if ((newlongitude+72.695976)*(newlongitude+72.695976)+(newlatitude-19.108722)*(newlatitude-19.108722) < 0.0004) { // Saint-Marc
 	    //	    cerr << "Saint-Marc vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
-	    pop->setRiverVibrioLevel(i, 20);
+	    pop->setRiverVibrioLevel(i, 100);
 	  } else if ((newlongitude+72.465456)*(newlongitude+72.465456)+(newlatitude-19.050562)*(newlatitude-19.050562) < 0.0004) { // Verrettes
 	    //	    cerr << "Verrettes vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
-	    pop->setRiverVibrioLevel(i, 20);
+	    pop->setRiverVibrioLevel(i, 100);
 	  } else if ((newlongitude+72.104514)*(newlongitude+72.104514)+(newlatitude-18.835532)*(newlatitude-18.835532) < 0.0004) { // Mirbalais
 	    //	    cerr << "Mirbalais vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
 	    //	    pop->setRiverVibrioLevel(i, 1);
-	    pop->setRiverVibrioLevel(i, 20);
+	    pop->setRiverVibrioLevel(i, 100);
 	  }
 	}
       }
