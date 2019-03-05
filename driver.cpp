@@ -368,17 +368,17 @@ int main(int argc, char *argv[]) {
 	  double newlatitude = pop->getlatitude(i);
 	  if ((newlongitude+72.477046)*(newlongitude+72.477046)+(newlatitude-19.121733)*(newlatitude-19.121733) < 0.0004) { // Petite Riviere de l'Artibonite
 	    //	    cerr << "Petite Riviere vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
-	    pop->setRiverVibrioLevel(i, 100);
+	    pop->setRiverVibrioLevel(i, 10);
 	  } else if ((newlongitude+72.695976)*(newlongitude+72.695976)+(newlatitude-19.108722)*(newlatitude-19.108722) < 0.0004) { // Saint-Marc
 	    //	    cerr << "Saint-Marc vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
-	    pop->setRiverVibrioLevel(i, 100);
+	    pop->setRiverVibrioLevel(i, 10);
 	  } else if ((newlongitude+72.465456)*(newlongitude+72.465456)+(newlatitude-19.050562)*(newlatitude-19.050562) < 0.0004) { // Verrettes
 	    //	    cerr << "Verrettes vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
-	    pop->setRiverVibrioLevel(i, 100);
+	    pop->setRiverVibrioLevel(i, 10);
 	  } else if ((newlongitude+72.104514)*(newlongitude+72.104514)+(newlatitude-18.835532)*(newlatitude-18.835532) < 0.0004) { // Mirbalais
 	    //	    cerr << "Mirbalais vibrio at cell " << i << " : " << pop->getX(i) << "," << pop->getY(i) << " ; " << newlongitude << "," << newlatitude << endl;
 	    //	    pop->setRiverVibrioLevel(i, 1);
-	    pop->setRiverVibrioLevel(i, 100);
+	    pop->setRiverVibrioLevel(i, 10);
 	  }
 	}
       }
