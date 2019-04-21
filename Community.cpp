@@ -498,7 +498,8 @@ void Community::drink(gsl_rng *rng) {
   double p = _fVibrioBeta * v/(_fVibrio50 + v);
 
   // transmission from environment
-  if (p>0.0) {
+  //  if (p>0.0) {
+  if (p>(1.0/gsl_rng_max(rng))) { // probability must be greater than lower limit of random number generator
     double ph = p*(1.0-_fWorkTimeFraction);
     double pw = p*_fWorkTimeFraction;
     for (int i=0; i<_nNumResidents; i++) {
