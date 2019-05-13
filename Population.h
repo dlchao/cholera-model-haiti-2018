@@ -68,6 +68,12 @@ class Population {
       total += _community[i].getNumNewSymptomatic(agemin=agemin, agemax=agemax);
     return total;
   }
+  int getNumNewInfections(int gridindex, int agemin=-1, int agemax=-1) {
+    int total=0;
+    for (int i=_nCommunityStart[gridindex]; i<_nCommunityStart[gridindex]+_nCommunities[gridindex]; i++)
+      total += _community[i].getNumNewInfections(agemin=agemin, agemax=agemax);
+    return total;
+  }
   int getNumResidents(int gridindex) {
     int total=0;
     for (int i=_nCommunityStart[gridindex]; i<_nCommunityStart[gridindex]+_nCommunities[gridindex]; i++)

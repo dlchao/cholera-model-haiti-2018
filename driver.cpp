@@ -440,7 +440,7 @@ int main(int argc, char *argv[]) {
       return false;
     }
     cerr << "outputing daily information to " << szDailyOutputFile << endl;
-    outputFile << "time,location,residents,susceptible,symptomatic,new symptomatic,new symptomatic U5,infectious,vaccinated,vaccinesused,max env vibrio,max river vibrio"<< endl;
+    outputFile << "time,location,residents,susceptible,symptomatic,new symptomatic,new symptomatic U5,infectious,newinfectious,vaccinated,vaccinesused,max env vibrio,max river vibrio"<< endl;
   } else {
     cerr << "not outputing information" << endl;
   }
@@ -520,6 +520,7 @@ int main(int argc, char *argv[]) {
       int newsymptomaticu5[MAXLABELS]; // new symptomatics under 5 years old
       int symptomatic[MAXLABELS];
       int infectious[MAXLABELS];
+      int newinfectious[MAXLABELS];
       int vaccinated[MAXLABELS];
       int vaccused[MAXLABELS];
       double vibrio_env[MAXLABELS];
@@ -530,6 +531,7 @@ int main(int argc, char *argv[]) {
       memset(newsymptomaticu5, 0, sizeof(int)*MAXLABELS);
       memset(symptomatic, 0, sizeof(int)*MAXLABELS);
       memset(infectious, 0, sizeof(int)*MAXLABELS);
+      memset(newinfectious, 0, sizeof(int)*MAXLABELS);
       memset(vaccinated, 0, sizeof(int)*MAXLABELS);
       memset(vaccused, 0, sizeof(int)*MAXLABELS);
       memset(vibrio_env, 0, sizeof(double)*MAXLABELS);
@@ -549,6 +551,7 @@ int main(int argc, char *argv[]) {
 	  residents[labelnum] += pop->getNumResidents(cellnum);
 	  newsymptomatic[labelnum]+=pop->getNumNewSymptomatic(cellnum);
 	  newsymptomaticu5[labelnum]+=pop->getNumNewSymptomatic(cellnum,0,4);
+	  newinfectious[labelnum]+=pop->getNumNewInfections(cellnum);
 	  symptomatic[labelnum]+=pop->getNumSymptomatic(cellnum);
 	  susceptibles[labelnum]+=pop->getNumSusceptible(cellnum);
 	  infectious[labelnum]+=pop->getNumInfectious(cellnum);
@@ -559,7 +562,7 @@ int main(int argc, char *argv[]) {
 	}
       }
       for (int labelnum=0; labelnum<pop->getNumUniqueLabels(); labelnum++) {
-	outputFile << pop->getDay() << "," << pop->getUniqueLabel(labelnum) << "," << residents[labelnum] << "," << susceptibles[labelnum] << "," << symptomatic[labelnum] << "," << newsymptomatic[labelnum] <<  "," << newsymptomaticu5[labelnum] <<  "," << infectious[labelnum] << "," << vaccinated[labelnum] <<  "," << vaccused[labelnum] << "," << vibrio_env[labelnum] <<  "," << vibrio_river[labelnum] << endl;
+	outputFile << pop->getDay() << "," << pop->getUniqueLabel(labelnum) << "," << residents[labelnum] << "," << susceptibles[labelnum] << "," << symptomatic[labelnum] << "," << newsymptomatic[labelnum] <<  "," << newsymptomaticu5[labelnum] <<  "," << infectious[labelnum] << "," << newinfectious[labelnum] << "," << vaccinated[labelnum] <<  "," << vaccused[labelnum] << "," << vibrio_env[labelnum] <<  "," << vibrio_river[labelnum] << endl;
 	if (!gridOutputFile.is_open())
 	  nTotalSymptomatic += newsymptomatic[labelnum];
       }

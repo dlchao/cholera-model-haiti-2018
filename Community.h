@@ -152,6 +152,7 @@ class Community {
   int getNumInfectious();
   int getNumSymptomatic();
   int getNumNewSymptomatic(int agemin=-1, int agemax=-1);
+  int getNumNewInfections(int agemin=-1, int agemax=-1);
   int getCumulativeSymptomatic();
   int getNumResidents() { return _nNumResidents; }
   int getNumVaccinated();

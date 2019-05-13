@@ -351,6 +351,25 @@ int Community::getNumNewSymptomatic(int agemin, int agemax) {
   return total;
 }
 
+// get number of newly infected people from ages [agemin,agemax] inclusive
+int Community::getNumNewInfections(int agemin, int agemax) {
+  int total = 0;
+  if (agemin<0 && agemax<0) {
+    for (int i=0; i<_nNumResidents; i++) {
+      Person &p = Person::personArray[_residents[i]];
+      if (p.getInfectiousCountup()==0)
+	total++;
+    }
+  } else {
+    for (int i=0; i<_nNumResidents; i++) {
+      Person &p = Person::personArray[_residents[i]];
+      if (p.getInfectiousCountup()==0 && p.getAge()>=agemin && p.getAge()<=agemax)
+	total++;
+    }
+  }
+  return total;
+}
+
 int Community::getCumulativeSymptomatic() {
   int total = 0;
   for (int i=0; i<_nNumResidents; i++) {
