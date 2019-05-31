@@ -221,13 +221,10 @@ int Population::loadPopulation(gsl_rng *rng,
 	  _nCommunityStart[gridindex]=_nNumCommunities;
 	  _nCommunities[gridindex]=numcomms;
 	  for (int i=0; i<numcomms; i++) {
-	    //	    cout << "grid id = " << gridindex << " : " << _nCommunityStart[gridindex]+i << "(" << i << ") : " << round(popleft/(numcomms-i)) << " , " << numcomms << "/" << cellpop << " : " << popleft << endl;
 	    Community &comm = _community[_nNumCommunities];
-	    //	    cerr << " grid " << gridindex << " ; " << " comm " << i << " " << _nNumCommunities << ", " << comm.getid() << endl;
 	    comm.populate(round(popleft/(numcomms-i)), popleft, householdids+cellpop-popleft, ages+cellpop-popleft);
 	    popleft-=comm.getNumResidents();
 	    _nNumCommunities++;
-	    //	    cout << "comm " << gridindex << "," << _nNumCommunities << "," << cellpop << "," << popleft << endl;
 	    if (_nNumCommunities>=MAXCOMMUNITIES) {
 	      cerr << "ERROR: Too many communities" << _nNumCommunities << endl;
 	      assert(-1);
@@ -236,8 +233,6 @@ int Population::loadPopulation(gsl_rng *rng,
 	} else {
 	  cerr << "ERROR: out of bounds: " << longitude <<"," << latitude <<"," << dept << " : " << xloc << "," << yloc << endl;
 	}
-	//      }
-      //      cout << xloc << "," << yloc <<"," << ages[index] << "," << dept << endl;
 
       }
       if (!(lastlongitude==longitude && lastlatitude==latitude)) {
@@ -299,7 +294,6 @@ int Population::assignWorkPlaces(gsl_rng *rng, int nSourceID,
       if (P2>0 && dist<maxradius) {
 	neighbors[totalneighbors] = destindex;
 	probs[totalneighbors] = pow(P1, tau1) * pow(P2, tau2) / pow(dist, rho); // do we need theta * ???
-	//	      cerr << "dist=" << dist << "," << probs[totalneighbors] <<  "," << 		pow(P1, tau1)  << ","  << pow(P2, tau2) << ","  << (pow(dist, rho)) << endl;
 	totalneighbors++;
 	assert(totalneighbors<maxradius*maxradius*4);
       }
@@ -581,11 +575,6 @@ int Population::getRadius(GridCells *g, int center, int radius, int *buf, int bu
   return searchedsize-oldsearchedsize;
 }
 
-// each degree is broken into 120 intervals
-//int Population::convertDegToInt(int deg, int min, int sec) {
-//  return deg*120+min*2+(sec>30?1:0);
-//}
-
 // infect - infect frac of the people in the cell gridindex
 int Population::infect(gsl_rng *rng, int gridindex, double frac, bool bMakeSymptomatic) {
   int count = 0;
@@ -604,8 +593,6 @@ int Population::infect(gsl_rng *rng, int gridindex, double frac, bool bMakeSympt
 
 // infect - infect num people in the cell closest to x,y
 int Population::infect(gsl_rng *rng, int num, double longitude, double latitude, bool bMakeSymptomatic) { 
-  //	int xloc = (int)(round((_nGridSizeX-1)*(lastlongitude-_fXOrigin)/(_fXMax-_fXOrigin)));
-  //	int yloc = (int)(round((_nGridSizeY-1)*(lastlatitude-_fYOrigin)/(_fYMax-_fYOrigin)));
   int index=0;
   double xindex, yindex;
   double distindex=1000000.0;
@@ -614,7 +601,6 @@ int Population::infect(gsl_rng *rng, int num, double longitude, double latitude,
     double newy = _grid->getY(i);
     double newlongitude = _fXOrigin+newx*(_fXMax-_fXOrigin)/(_nGridSizeX-1);
     double newlatitude = _fYOrigin+newy*(_fYMax-_fYOrigin)/(_nGridSizeY-1);
-    //    double newdist = (newx-x)*(newx-x)+(newy-y)*(newy-y);
     double newdist = (newlongitude-longitude)*(newlongitude-longitude)+(newlatitude-latitude)*(newlatitude-latitude);
     if (newdist<distindex && getNumResidents(i)>0) {
       index = i;
@@ -666,7 +652,6 @@ int Population::computedrivelength(gsl_rng *rng, int start) {
   int tail = 1;
   gridqueue[head] = start;
   _nHighwayDepth[start] = 1;
-  //  cerr << "start at " << start << ": " << (start%_nGridSizeX) << "," << (start/_nGridSizeX) << endl;
   while(head<tail && tail<MAXQUEUESIZE-1) {
     int loc = gridqueue[head++];
     for (int x=-1; x<=1; x++)
@@ -676,7 +661,6 @@ int Population::computedrivelength(gsl_rng *rng, int start) {
 	  if ((x!=0 || y!=0) &&
 	      _bHighway[pos] &&
 	      _nHighwayDepth[pos]<=0) {
-	    //	    	  cerr << "  " << loc << ": " << (loc%_nGridSizeX)+x << "," << (loc/_nGridSizeX)+y << "," << (_nHighwayDepth[loc]+1) << endl;
 	    if (_nHighwayDepth[loc]<MAXDIST) {
 	      assert(tail<MAXQUEUESIZE);
 	      if (tail>=MAXQUEUESIZE)
@@ -891,15 +875,21 @@ int Population::step(gsl_rng *rng) {
   // waning immunity from natural infection
   if (_nDaysToWane>0) {
     double probperday=1.0-exp(-1.0/(_nDaysToWane)); // daily waning probability
-    int skip = ceil(log(gsl_rng_uniform(rng))/log(1-probperday)); // how many people in a row do not wane? draw from geometric distribution
+    double r = gsl_rng_uniform(rng);
+    while (r==0.0) // make sure we don't try to take the log of 0
+      r = gsl_rng_uniform(rng);
+    int skip = ceil(log(r)/log(1-probperday)); // how many people in a row do not wane? draw from geometric distribution
     for (int personnum=0; personnum<Person::getLastPersonID(); personnum+=skip) {
       // make this person fully susceptible
       if (Person::personArray[personnum].getBaseSusceptibility()<1.0)
 	Person::personArray[personnum].setBaseSusceptibility(1.0);
-      skip = ceil(log(gsl_rng_uniform(rng))/log(1-probperday)); // choose next person to make susceptible
+      double r = gsl_rng_uniform(rng);
+      while (r==0.0) // make sure we don't try to take the log of 0
+	r = gsl_rng_uniform(rng);
+      skip = ceil(log(r)/log(1-probperday)); // choose next person to make susceptible
     }
   }
-
+  
   // infect susceptibles
   for (int i=0; i < _nNumCommunities; i++)
     _community[i].drink(rng);
@@ -921,7 +911,6 @@ int Population::step(gsl_rng *rng) {
 
     // vaccinate if ready
     if (_nNumVaccinesAvailable>_nNumVaccinesUsed) {
-      //      cerr << "_nNumVaccinesAvailable>_nNumVaccinesUsed : " << _nNumVaccinesAvailable << ">" << _nNumVaccinesUsed << endl; ////////////
       int nNumPeopleWant = 0; // about how many people want vaccine
       int nNumCellsWant = 0;  // how many grid cells want vaccine
       for (int gridnum=0; gridnum < _grid->getSize(); gridnum++)
@@ -932,8 +921,6 @@ int Population::step(gsl_rng *rng) {
 	  nNumCellsWant++;
 	}
       nNumPeopleWant *= _fVaccinationTarget;
-      //      cerr << "Want vaccine: " << nNumPeopleWant << " people" <<  ", " << nNumCellsWant << " cells," << _fVaccinationTarget << endl;
-      //      cerr << "Have: " << _nNumVaccinesAvailable-_nNumVaccinesUsed << " vaccines" << endl;
       if (nNumPeopleWant<=_nNumVaccinesAvailable-_nNumVaccinesUsed) {
 	// enough vaccine for everyone who wants it
 	for (int gridnum=0; gridnum < _grid->getSize(); gridnum++) {
