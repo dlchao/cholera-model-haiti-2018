@@ -1,0 +1,30 @@
+runlength 7040
+dailycellfile
+wanedays 2920
+communitysize 1000
+travelprob 0.000005
+driveprob 0.00005
+beta 0.1
+kappa 0.2
+hyper 2
+vibriohalflife 14
+rivershedfraction 0.01
+mininfectiousperiod 1
+maxinfectiousperiod 3
+VEP 0.0
+VEI 0.0
+VES 0.76
+vewaning 0.0003349047
+veu5reduction 0.531
+vaccinatefraction 0.7
+vaccinatedelay 0
+vaccinatethreshold 1000000000
+vaccinestockpile 0
+vaccinefirstday 1000000
+vaccineperday 2348
+vaccinelocationfirstday Centre 3297
+vaccinelocationfirstday L'Artibonite 3516
+rainfile haiti-rainfall-1.txt
+randomseed 1
+outputfile department-infections-rainfile1.csv
+rainshedmultipliers 0.3 1 1.1 2 6

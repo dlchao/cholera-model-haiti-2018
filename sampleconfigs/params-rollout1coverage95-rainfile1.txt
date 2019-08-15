@@ -1,0 +1,39 @@
+runlength 7040
+dailycellfile
+wanedays 2920
+communitysize 1000
+travelprob 0.000005
+driveprob 0.00005
+beta 0.1
+kappa 0.2
+hyper 2
+vibriohalflife 14
+rivershedfraction 0.01
+mininfectiousperiod 1
+maxinfectiousperiod 3
+VEP 0.0
+VEI 0.0
+VES 0.76
+vewaning 0.0003349047
+veu5reduction 0.531
+vaccinatefraction 0.95
+vaccinatedelay 0
+vaccinatethreshold 1000000000
+vaccinestockpile 0
+vaccinefirstday 1000000
+vaccineperday 14002
+vaccinelocationfirstday Centre 3297
+vaccinelocationfirstday L'Artibonite 3346
+vaccinelocationfirstday Port-au-Prince 3463
+vaccinelocationfirstday Ouest 3641
+vaccinelocationfirstday Nord-Ouest 3734
+vaccinelocationfirstday Nord 3781
+vaccinelocationfirstday Sud 3853
+vaccinelocationfirstday Nippes 3904
+vaccinelocationfirstday Nord-Est 3926
+vaccinelocationfirstday Sud-Est 3953
+vaccinelocationfirstday Grand'Anse 3994
+rainfile haiti-rainfall-1.txt
+randomseed 1
+outputfile department-infections-rainfile1.csv
+rainshedmultipliers 0.3 1 1.1 2 6

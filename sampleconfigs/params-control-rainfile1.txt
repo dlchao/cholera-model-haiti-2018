@@ -1,0 +1,17 @@
+runlength 7040
+dailycellfile
+wanedays 2920
+communitysize 1000
+travelprob 0.000005
+driveprob 0.00005
+beta 0.1
+kappa 0.2
+hyper 2
+vibriohalflife 14
+rivershedfraction 0.01
+mininfectiousperiod 1
+maxinfectiousperiod 3
+rainfile haiti-rainfall-1.txt
+randomseed 1
+outputfile department-infections-rainfile1.csv
+rainshedmultipliers 0.3 1 1.1 2 6
