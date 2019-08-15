@@ -13,6 +13,11 @@ The two population data files were derived from WorldPop's data.
 The rainfall data (in mm/day) is from NOAA, downloaded from
 ftp://ftp.star.nesdis.noaa.gov/pub/smcd/emb/f_f/hydroest/grads/centralamerica/24hour12-12.
 
+The Makefile compiles the executable "choleramodel", which can be
+run using the configuration files in the "sampleconfigs" directory.
+Model output is written to the file specified by the configuration
+file.
+
 The program requires the GNU Scientific library 
 (http://www.gnu.org/software/gsl/) to compile.
 
@@ -21,4 +26,4 @@ http://www.gnu.org/licenses/gpl-3.0.html).
 
 Dennis Chao
 dennisc@idmod.org
-June 2018
+August 2019
